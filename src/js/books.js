@@ -8,11 +8,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         const bookName = document.getElementById('name').value;
         const bookAuthor = document.getElementById('author').value;
         const bookGenre = document.getElementById('genre').value;
-        await saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre });
-        hideModal('createBook');
-        await getBooksRequest();
+        const bookStatus = document.getElementById('status').checked;
+        const bookPrice = document.getElementById('price').value;
+        const bookNumPages = document.getElementById('numPages').value;
+    
+        if (validateFields(imgURL, bookName, bookAuthor, bookGenre, bookPrice, bookNumPages)) {
+            await saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre, bookStatus, bookPrice, bookNumPages });
+            hideModal('createBook');
+            await getBooksRequest();
+        }
     });
-
+    
     const updateBookButton = document.getElementById('updateBookButton');
     updateBookButton.addEventListener('click', async function () {
         const bookImgURL = document.getElementById('editBookImgURL').value;
@@ -20,10 +26,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         const bookName = document.getElementById('editBookTitle').value;
         const bookAuthor = document.getElementById('editBookAuthor').value;
         const bookGenre = document.getElementById('editBookGenre').value;
-        await updateBookRequest({ bookImgURL, bookID, bookName, bookGenre, bookAuthor });
-        hideModal('editBookModal');
-        await getBooksRequest();
+        const bookStatus = document.getElementById('editBookStatus').checked;
+        const bookPrice = document.getElementById('editBookPrice').value;
+        const bookNumPages = document.getElementById('editNumPages').value;
+    
+        if (validateFields(bookImgURL, bookName, bookAuthor, bookGenre, bookPrice, bookNumPages)) {
+            await updateBookRequest({ bookImgURL, bookID, bookName, bookGenre, bookAuthor, bookStatus, bookPrice, bookNumPages });
+            hideModal('editBookModal');
+            await getBooksRequest();
+        }
     });
+    
 
     const deleteBookButton = document.getElementById('deleteBookButton');
         deleteBookButton.addEventListener('click', async function () {
@@ -33,6 +46,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         await getBooksRequest();
     });
 });
+
+function validateFields(imgURL, bookName, bookAuthor, bookGenre, bookPrice, bookNumPages) {
+    if (!imgURL || !bookName || !bookAuthor || !bookGenre || bookPrice === "" || bookNumPages === "") {
+        alert("Por favor, complete todos los campos obligatorios.");
+        return false;
+    }
+    return true;
+}
 
 function showBooks(books) {
     let arrayBooks = '';
@@ -44,13 +65,25 @@ function showBooks(books) {
                 <td>${book.title}</td>
                 <td>${book.genre}</td>
                 <td>${book.author}</td>
+                <td>${book.price}</td>
+                <td>${book.numPages}</td>
+                <td>${book.status}</td>
                 <td>
-                    <button type="button" class="btn btn-outline-primary" onclick="editBook('${book.id}','${book.imgURL}','${book.title}', '${book.genre}', '${book.author}')">
+                    <button type="button" class="btn btn-outline-info" onclick=
+                    "showOneBook('${book.id}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline-primary" onclick=
+                    "editBook('${book.id}','${book.imgURL}', '${book.title}', '${book.genre}', 
+                    '${book.author}','${book.status}','${book.price}','${book.numPages}')">
                     <i class="fas fa-pencil-alt"></i>
                     </button>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-outline-danger" onclick="deleteBook('${book.id}', '${book.title}')">
+                    <button type="button" class="btn btn-outline-danger" onclick=
+                    "deleteBook('${book.id}', '${book.title}')">
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
@@ -77,7 +110,7 @@ async function getBooksRequest() {
     }
 }
 
-async function saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre }) {
+async function saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre, bookStatus, bookPrice, bookNumPages }) {
     try {
         let request = await fetch('http://localhost:3000/books', {
             method: 'POST',
@@ -88,7 +121,10 @@ async function saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre }) {
                 imgURL: imgURL,
                 title: bookName,
                 author: bookAuthor,
-                genre: bookGenre
+                genre: bookGenre,
+                price: bookPrice,
+                numPages: bookNumPages,
+                status: bookStatus
             })
         });
         let data = await request.json();
@@ -106,7 +142,7 @@ async function saveBookRequest({ imgURL, bookName, bookAuthor, bookGenre }) {
     }
 }
 
-async function updateBookRequest({ bookID, bookImgURL, bookName, bookGenre, bookAuthor }) {
+async function updateBookRequest({ bookID, bookImgURL, bookName, bookGenre, bookAuthor, bookStatus, bookPrice, bookNumPages }) {
     try {
         let request = await fetch(`http://localhost:3000/books/${bookID}`, {
             method: 'PUT',
@@ -117,7 +153,10 @@ async function updateBookRequest({ bookID, bookImgURL, bookName, bookGenre, book
                 imgURL: bookImgURL,
                 title: bookName,
                 author: bookAuthor,
-                genre: bookGenre
+                genre: bookGenre,
+                price: bookPrice,
+                numPages: bookNumPages,
+                status: bookStatus
             })
         });
         const data = await request.json();
@@ -132,14 +171,62 @@ async function updateBookRequest({ bookID, bookImgURL, bookName, bookGenre, book
     }
 }
 
-function editBook(id, imgURL, title, genre, author) {
+function editBook(id, imgURL, title, genre, author, status, price, numPages) {
     document.getElementById('editBookID').innerHTML = id;
     document.getElementById('editBookImgURL').value = imgURL;
     document.getElementById('editBookTitle').value = title;
     document.getElementById('editBookAuthor').value = author;
     document.getElementById('editBookGenre').value = genre;
+    document.getElementById('editBookStatus').checked = (status === 'true'); 
+    document.getElementById('editBookPrice').value = price; 
+    document.getElementById('editNumPages').value = numPages; 
     showModal('editBookModal');
 }
+
+async function showOneBook(id) {
+    try {
+        let request = await fetch(`http://localhost:3000/books/${id}`, {
+            method: 'GET'
+        });
+        let data = await request.json();
+        if (data.ok) {
+            showBook(data.book);
+            showModal('viewBookModal');
+        } else {
+            alert('Failed book GETING');
+        }
+    } catch (error) {
+        alert('ERROR');
+    }
+}
+
+
+function showBook(book) {
+    const bookContainer = document.getElementById('book-container');
+    bookContainer.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3" style="max-width: 440px;">
+                    <div class="row g-0 h-100 w-100">
+                        <div class="col-md-4">
+                        <img src="${book.imgURL}" class="img-fluid rounded-start h-100 w-100" alt="${book.title}">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">${book.title}</h5>
+                                <p class="card-text">${book.author}</p>
+                                <p class="card-text"><small class="text-muted">${book.genre}</small></p>
+                                <p class="card-text"><small class="text-muted">${book.price}</small></p>
+                                <p class="card-text"><small class="text-muted">${book.numPages}</small></p>
+                                <p class="card-text"><small class="text-muted">${book.status}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+}
+
 
 function deleteBook(id, title) {
     document.getElementById('deleteBookID').innerHTML = id;

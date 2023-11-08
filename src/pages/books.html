@@ -41,9 +41,14 @@
                 <thead class="table-light">
                     <tr>
                         <th scope="col">ID</th>
+                        <th>Image</th>
                         <th>Name</th>
                         <th>Genre</th>
                         <th>Author</th>
+                        <th>Status</th>
+                        <th>Price</th>
+                        <th>Number of Pages</th>
+                        <th>Show</th>
                         <th>Edit</th>
                         <th>Delete</th>
                     </tr>
@@ -85,6 +90,20 @@
                                 <label for="author" class="form-label">Author</label>
                                 <input type="author" class="form-control" id="author" name="author"
                                     placeholder="Author">
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status </label><br/>
+                                <input type="checkbox" id="status"/> Available </label><br/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="price" name="price"
+                                    placeholder="Price">
+                            </div>
+                            <div class="mb-3">
+                                <label for="numPages" class="form-label">Number of Pages</label>
+                                <input type="number" class="form-control" id="numPages" name="numPages"
+                                    placeholder="Number of Pages">
                             </div>
                         </form>
                     </div>
@@ -129,6 +148,20 @@
                                 <input type="author" class="form-control" id="editBookAuthor" name="author"
                                     placeholder="Author">
                             </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status </label><br/>
+                                <input type="checkbox" id="editBookStatus"/> Available </label><br/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editBookPrice" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="editBookPrice" name="editBookPrice"
+                                    placeholder="Price">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNumPages" class="form-label">Number of Pages</label>
+                                <input type="number" class="form-control" id="editNumPages" name="editNumPages"
+                                    placeholder="Number of Pages">
+                            </div> 
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -158,6 +191,27 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="viewBookModal" tabindex="-1" aria-labelledby="viewBookModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewBookModalLabel">View Book</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container py-4">
+                            <div class="container-fluid py-4">
+                                <div class="row" id="book-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
